@@ -1,0 +1,86 @@
+﻿@model BIsm2.Models.Order
+
+<h2>Buy Now - @Model.Product.Name</h2>
+<p>Price: @Model.Product.Price</p>
+
+<form asp-action="BuyNow" method="post">
+    <input type="hidden" asp-for="ProductId" />
+    <label>Quantity:</label>
+    <input asp-for="Quantity" type="number" min="1" value="1" id="quantity"/>
+    <p>Total: <span id="totalPrice">@Model.TotalPrice</span></p>
+    <p>Charges (1.5%): <span id="charges">@Model.Charges</span></p>
+    <p>Grand Total: <span id="grandTotal">@Model.GrandTotal</span></p>
+
+    <h3>Shipping Details</h3>
+    <div>
+    <input asp-for="Name" placeholder="Full Name" />
+    <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="Phone" placeholder="Phone" />
+    <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="Email" placeholder="Email" />
+    <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="Country" placeholder="Country" />
+    <span asp-validation-for="Country" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="City" placeholder="City" />
+    <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="Address" placeholder="Address" />
+    <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="Street" placeholder="Street" />
+    <span asp-validation-for="Street" class="text-danger"></span>
+    </div>
+    <div>
+    <input asp-for="HouseNumber" placeholder="House Number" />
+    <span asp-validation-for="HouseNumber" class="text-danger"></span>
+    </div>
+    <input asp-for="Landmark" placeholder="Landmark (optional)" />
+    <h3>Payment Method</h3>
+    <select asp-for="PaymentMethod">
+        <option>Cash on Delivery</option>
+        <option>JazzCash</option>
+        <option>EasyPaisa</option>
+    </select>
+
+    <button type="submit">Buy Now</button>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const quantityInput = document.getElementById("quantity");
+            const totalPriceSpan = document.getElementById("totalPrice");
+            const chargesSpan = document.getElementById("charges");
+            const grandTotalSpan = document.getElementById("grandTotal");
+
+            // product price from server
+            const productPrice = @Model.Product.Price;
+
+            function updateTotals() {
+                const qty = parseInt(quantityInput.value) || 1;
+                const totalPrice = productPrice * qty;
+                const charges = totalPrice * 0.015;
+                const grandTotal = totalPrice + charges;
+
+                totalPriceSpan.textContent = totalPrice.toFixed(2);
+                chargesSpan.textContent = charges.toFixed(2);
+                grandTotalSpan.textContent = grandTotal.toFixed(2);
+            }
+
+            quantityInput.addEventListener("input", updateTotals);
+            updateTotals(); // run once on load
+        });
+    </script>
+}

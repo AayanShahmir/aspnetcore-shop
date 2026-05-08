@@ -1,0 +1,79 @@
+﻿@using BIsm2.ViewModels
+@model DetailsViewModel
+<h2>@Model.Product.Name</h2>
+<p>@Model.Product.Price</p>
+<p>@Model.Product.Description</p>
+
+@foreach (var media in Model.Product.Media)
+{
+    if (media.Type == MediaType.Image)
+    {
+        <img src="data:@media.ContentType;base64,@Convert.ToBase64String(media.FileData)" width="200" />
+
+    }
+    else
+    {
+            <video controls style="max-width:400px;">
+                <source src="data:@media.ContentType;base64,@Convert.ToBase64String(media.FileData)" type="@media.ContentType" />
+            </video>
+    }
+}
+
+
+<label asp-for="Comments"><h1>Reviews</h1></label><br>         
+<div class="revb">
+<div>
+<h2>Add Review</h2>
+<form id="commentForm" method="post" asp-controller="Product" asp-action="Review" asp-route-pid="@Model.Product?.Id" asp-route-cid="@Model.Comment?.Id">
+<div asp-validation-summary="All"></div>
+<input type="hidden" name="pid" value="@Model.Product?.Id">
+<input type="hidden" name="cid" value="@Model.Comment?.Id" id="commentId"/>
+        
+        <div>
+            <label asp-for="Comment.Content"></label>
+            <input asp-for="Comment.Content" name="content" id="content" required>
+            <span asp-validation-for="Comment.Content"></span>
+        </div>
+        <button type="submit" id="submitBtn">Add Review</button>
+</form>
+</div>
+<div id="commentList">
+@foreach(var comm in Model.Comments){
+    <div class="comment" data-id="@comm.Id" data-username="@comm.UName" data-content="@comm.Content">
+    <p>@comm.UName</p>
+    <p>@comm.Content</p>
+    <p><small>Posted on @comm.CreatedAt.ToLocalTime().ToString("dd MMM yyyy hh:mm tt")</small></p>
+    @if (User.Identity.IsAuthenticated && comm.UserId == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value)
+        {
+            <button type="button" onclick="editComment(this)">Edit</button>
+            <button><a asp-controller="Product" asp-action="DeleteComment" asp-route-id="@comm.Id" asp-route-PId="@Model.Product?.Id" onclick="javascript: return confirm('are you sure you want to delete it?');"> Delete</a></button>
+        }
+</div>
+<hr>
+}
+</div>
+</div>
+@section Scripts {
+    <script>
+        function editComment(button) {
+        const commentDiv = button.closest('.comment');
+        const id = commentDiv.getAttribute('data-id');
+        const content = commentDiv.getAttribute('data-content');
+
+        document.getElementById('commentId').value = id;
+        document.getElementById('content').value = content;
+        document.getElementById('submitBtn').textContent = 'Edit';
+    }
+
+    document.getElementById('commentForm').addEventListener('submit', function () {
+        setTimeout(() => {
+            document.getElementById('submitBtn').textContent = 'Submit';
+            document.getElementById('commentId').value = '';
+            
+            document.getElementById('content').value = '';
+        }, 100); // Let form submit before clearing
+    });
+
+    </script>
+}
+</div>

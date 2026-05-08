@@ -1,0 +1,60 @@
+﻿@model IEnumerable<BIsm2.Models.Product>
+
+<h1>This Is The Seller's Page</h1>
+<h2><a asp-controller="Product" asp-action="Index">Go Back To HomePage</a></h2>
+<h2>Your Products</h2>
+<a asp-controller="Product" asp-action="Create" class="btn btn-primary">Add New Product</a>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Price</th>
+            <th>Media</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var product in Model)
+        {
+            <tr>
+                <td>@product.Name</td>
+                <td>@product.Price</td>
+                <td>
+                    @if (product.Media != null && product.Media.Any())
+                    {
+                        var firstMedia = product.Media.First();
+
+                        if (firstMedia.Type == MediaType.Image)
+                        {
+                            <img src="data:@firstMedia.ContentType;base64,@Convert.ToBase64String(firstMedia.FileData)"
+                                 style="max-width:150px;" />
+                        }
+                        else if (firstMedia.Type == MediaType.Video)
+                        {
+                            <video controls style="max-width:200px;">
+                                <source src="data:@firstMedia.ContentType;base64,@Convert.ToBase64String(firstMedia.FileData)"
+                                        type="@firstMedia.ContentType" />
+                            </video>
+                        }
+                    }
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@product.Id">Details</a>
+                </td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@product.Id" class="btn btn-warning">Update</a>
+                </td>
+                <td>
+           
+                    <form asp-action="Delete" method="post">
+                        <input type="hidden" name="id" value="@product.Id" />
+                        <button type="submit" onclick="javascript: return confirm('are you sure you want to delete it?');">Delete</button>
+                    </form>
+
+            
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

@@ -1,0 +1,69 @@
+﻿@model BIsm2.Models.Checkout
+
+<h2>Cart Checkout</h2>
+
+<h3>Your Products</h3>
+<ul>
+    @foreach (var item in Model.Items)
+    {
+        <li>
+            <strong>@item.Product.Name</strong> - Quantity: @item.Quantity
+            Price: @item.Product.Price
+            Subtotal: @item.Subtotal
+        </li>
+    }
+</ul>
+
+<p>Total Price: <span>@Model.TotalPrice</span></p>
+<p>Charges (1.5%): <span>@Model.Charges</span></p>
+<p>Grand Total: <span>@Model.GrandTotal</span></p>
+
+<h3>Shipping Details</h3>
+<form asp-action="Checkout" method="post">
+    <div>
+        <input asp-for="Name" placeholder="Full Name" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="Phone" placeholder="Phone" />
+        <span asp-validation-for="Phone" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="Email" placeholder="Email" />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="Country" placeholder="Country" />
+        <span asp-validation-for="Country" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="City" placeholder="City" />
+        <span asp-validation-for="City" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="Address" placeholder="Address" />
+        <span asp-validation-for="Address" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="Street" placeholder="Street" />
+        <span asp-validation-for="Street" class="text-danger"></span>
+    </div>
+    <div>
+        <input asp-for="HouseNumber" placeholder="House Number" />
+        <span asp-validation-for="HouseNumber" class="text-danger"></span>
+    </div>
+    
+    <h3>Payment Method</h3>
+    <select asp-for="PaymentMethod">
+        <option>Cash on Delivery</option>
+        <option>JazzCash</option>
+        <option>EasyPaisa</option>
+    </select>
+
+    <button type="submit">Checkout</button>
+</form>
+
+
+
+
+

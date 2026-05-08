@@ -1,0 +1,25 @@
+﻿@model BIsm2.ViewModels.LoginViewModel
+<h2>Login</h2>
+@Html.ValidationSummary(true, "", new { @class = "text-danger" })
+<form asp-controller="Product" asp-action="Login" method="post">
+    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+    <div>
+        <label asp-for="UserIdentifier">Enter UserName or Email</label>
+        <input asp-for="UserIdentifier" />
+        <span asp-validation-for="UserIdentifier" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label asp-for="Password"></label>
+        <input asp-for="Password" type="password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div>
+        <label>
+            <input asp-for="RememberMe" /> Remember Me
+        </label>
+    </div>
+
+    <button type="submit">Login</button>
+</form>

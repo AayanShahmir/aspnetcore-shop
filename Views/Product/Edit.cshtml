@@ -1,0 +1,173 @@
+﻿@model BIsm2.Models.Product
+@using BIsm2.Models
+
+@{
+    ViewData["Title"] = "Edit Product";
+}
+
+<h2>Edit Product</h2>
+
+<form id="productEditForm" asp-action="Edit" method="post" enctype="multipart/form-data">
+
+    @Html.AntiForgeryToken()
+    <input type="hidden" asp-for="Id" />
+
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Price" class="control-label"></label>
+        <input asp-for="Price" class="form-control" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label>Existing Media</label>
+        <div>
+            @if (Model.Media != null && Model.Media.Any())
+            {
+                foreach (var media in Model.Media)
+                {
+                    <div id="media-@media.Id" style="margin:10px; display:inline-block;">
+                        @if (media.Type == MediaType.Image)
+                        {
+                            <img src="data:@media.ContentType;base64,@Convert.ToBase64String(media.FileData)" style="max-width:150px;" />
+                        }
+                        else
+                        {
+                            <video controls style="max-width:200px;">
+                                <source src="data:@media.ContentType;base64,@Convert.ToBase64String(media.FileData)" type="@media.ContentType" />
+                            </video>
+                        }
+                        <div>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="deleteMedia(@media.Id)">Remove</button>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p>No media uploaded.</p>
+            }
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="fileInput" class="custom-file-upload btn btn-light">Choose files</label>
+        <input type="file" id="fileInput" name="files" multiple />
+        <span id="fileStatus" class="ml-2">No files chosen</span>
+        <div id="preview" style="margin-top:10px;"></div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>
+
+<style>
+    input[type="file"] {
+        display: none;
+    }
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        padding: 6px 12px;
+        cursor: pointer;
+        background-color: #eee;
+    }
+</style>
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        // Delete media via POST to Product/DeleteMedia
+        function deleteMedia(id) {
+            const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+            fetch(`/Product/DeleteMedia/${id}`, {
+                method: 'POST',
+                headers: {
+                    'RequestVerificationToken': token,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({}) // some servers expect a body for POST
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const el = document.getElementById(`media-${id}`);
+                    if (el) el.remove();
+                } else {
+                    alert('Could not delete media.');
+                }
+            })
+            .catch(() => alert('Network error while deleting media.'));
+        }
+
+        // File selection UI and preview
+        const input = document.getElementById('fileInput');
+        const preview = document.getElementById('preview');
+        const status = document.getElementById('fileStatus');
+        let selectedFiles = [];
+
+        input.addEventListener('change', () => {
+            Array.from(input.files).forEach(f => selectedFiles.push(f));
+            renderPreview();
+            input.value = "";
+            updateStatus();
+        });
+
+        function renderPreview() {
+            preview.innerHTML = '';
+            selectedFiles.forEach((file, i) => {
+                const div = document.createElement('div');
+                div.style.margin = '5px';
+                div.innerHTML = `
+                    <span>${file.name}</span>
+                    <button type="button" class="btn btn-sm btn-outline-danger ml-2" onclick="removeFile(${i})">Remove</button>
+                `;
+                preview.appendChild(div);
+            });
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderPreview();
+            updateStatus();
+        }
+
+        function updateStatus() {
+            status.textContent = selectedFiles.length === 0 ? "No files chosen" : `${selectedFiles.length} file(s) selected`;
+        }
+
+        // Attach selected files back to the hidden input before submit
+        document.querySelector('form').addEventListener('submit', (e) => {
+            const dt = new DataTransfer();
+            selectedFiles.forEach(f => dt.items.add(f));
+            input.files = dt.files;
+        });
+
+
+        const form = document.getElementById('productEditForm');
+const input = document.getElementById('fileInput');
+
+input.addEventListener('change', () => {
+  console.log('input.files on change:', input.files);
+  // existing code that pushes files into selectedFiles...
+});
+
+form.addEventListener('submit', (e) => {
+  console.log('Before submit: selectedFiles length =', selectedFiles.length);
+  console.log('Before submit: input.files length =', input.files.length);
+});
+
+    </script>
+}

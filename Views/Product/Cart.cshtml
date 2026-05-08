@@ -1,0 +1,59 @@
+﻿@model BIsm2.Models.Cart
+
+<h2>Your Cart</h2>
+<h2>Hello @User.Identity.Name, you have @Model.Items.Count items in your cart</h2>
+@if (Model?.Items != null && Model.Items.Any())
+{
+    <table>
+        <tr>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Quantity</th>
+            <th>Total</th>
+        </tr>
+        @foreach (var item in Model.Items)
+        {
+            <tr>
+                <td>@item.Product.Name</td>
+                <td>@item.Product.Price</td>
+                <td>
+                    <input type="number" value="@item.Quantity" min="1"
+                           onchange="updateQuantity(@item.Id, this.value)" />
+                </td>
+                <td id="total-@item.Id">@(@item.Quantity* item.Product.Price)</td>
+                <td>
+                    <form asp-action="RemoveFromCart" asp-controller="Product" method="post">
+                        <input type="hidden" name="itemId" value="@item.Id" />
+                        <button type="submit">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </table>
+    <p><strong>Grand Total: </strong><span id="grandTotal">@Model.Items.Sum(ci => ci.Quantity * ci.Product.Price)</span></p>
+    <a asp-controller="Product" asp-action="Checkout" class="btn btn-primary">Checkout</a>
+}
+else
+{
+    <p>Your cart is empty.</p>
+}
+
+@section Scripts {
+    <script>
+         function updateQuantity(itemId, qty) {
+            $.post('@Url.Action("UpdateQuantity", "Product")',
+                { itemId: itemId, quantity: qty },
+                function (data) {
+                    if (data.success) {
+                        $("#total-" + itemId).text(data.itemTotal);
+                        $("#grandTotal").text(data.grandTotal);
+                        $("#cartCount").text(data.cartCount);
+                    }
+                });
+        }
+
+
+
+
+    </script>
+}

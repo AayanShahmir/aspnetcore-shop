@@ -1,0 +1,98 @@
+﻿@model BIsm2.Models.Product
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+    <label asp-for="Name">
+       Product Name
+    </label>
+
+    <input asp-for="Name" />
+    <label asp-for="Price">
+       Product Price
+    </label>
+    <input asp-for="Price" />
+    <label asp-for="Description">
+       Product Description
+    </label>
+    <textarea asp-for="Description"></textarea>
+    <label for="fileInput" class="custom-file-upload">
+        Choose files
+    </label>
+    <input type="file" id="fileInput" name="files" multiple />
+    <span id="fileStatus">No files chosen</span>
+    <div id="preview"></div>
+
+    <button type="submit">Save</button>
+</form>
+<style>
+    input[type="file"] {
+        display: none;
+        color: transparent;   /* hides "No file chosen" */
+    }
+    .custom-file-upload {
+        border: 1px solid #ccc;
+        display: inline-block;
+        padding: 6px 12px;
+        cursor: pointer;
+        background-color: #eee;
+    }
+</style>
+
+<script>
+    const input = document.getElementById('fileInput');
+    const preview = document.getElementById('preview');
+    const status = document.getElementById('fileStatus');
+    let selectedFiles = [];
+
+    input.addEventListener('change', () => {
+        Array.from(input.files).forEach(file => {
+            selectedFiles.push(file);
+        });
+
+        renderPreview();
+        updateStatus();
+
+        // Do NOT clear input here anymore
+        // input.value = "";  <-- removed
+    });
+
+    function renderPreview() {
+        preview.innerHTML = '';
+        selectedFiles.forEach((file, index) => {
+            const div = document.createElement('div');
+            div.style.margin = '5px';
+
+            div.innerHTML = `
+                ${file.name}
+                <button type="button" onclick="removeFile(${index})">Remove</button>
+            `;
+            preview.appendChild(div);
+        });
+    }
+
+    function removeFile(index) {
+        selectedFiles.splice(index, 1);
+        renderPreview();
+        updateStatus();
+    }
+
+    function updateStatus() {
+        if (selectedFiles.length === 0) {
+            status.textContent = "No files chosen";
+        } else {
+            status.textContent = `${selectedFiles.length} file(s) selected`;
+        }
+    }
+
+    // Before submitting, attach files back to input
+    document.querySelector('form').addEventListener('submit', (e) => {
+        const dt = new DataTransfer();
+        selectedFiles.forEach(file => dt.items.add(file));
+        input.files = dt.files;
+
+        console.log("Submitting " + input.files.length + " files"); // debug
+    });
+
+</script>
+
+
+
+   
